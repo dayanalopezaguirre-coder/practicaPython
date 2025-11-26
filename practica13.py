@@ -1,10 +1,12 @@
 import socket
 import threading
+import requests  # Para hacer solicitudes HTTP GET
 
 class ChatClient:
-    def __init__(self, host='127.0.0.1', port=12345):
+    def __init__(self, host='127.0.0.1', port=12345, api_url='http://127.0.0.1:8000/api/mensajes'):
         self.host = host
         self.port = port
+        self.api_url = api_url  # URL de la API para obtener historial con GET
         self.client_socket = None
         self.running = False
         self.receive_callback = None  # Callback para manejar mensajes recibidos en la GUI
@@ -12,6 +14,19 @@ class ChatClient:
     def set_receive_callback(self, callback):
         """Establece una función de callback para manejar mensajes recibidos."""
         self.receive_callback = callback
+    
+    def get_message_history(self):
+        """Obtiene el historial de mensajes desde la API con GET."""
+        try:
+            response = requests.get(self.api_url)
+            if response.status_code == 200:
+                return response.json()  # Devuelve lista de mensajes (ej. [{"nombre_usuario": "user", "mensaje": "hola", "fecha_hora": "2023-10-01T12:00:00"}])
+            else:
+                print(f"Error al obtener historial: {response.status_code} - {response.text}")
+                return []
+        except Exception as e:
+            print(f"Error de conexión con API para historial: {e}")
+            return []
     
     def connect(self, nickname):
         """Conecta al servidor y envía el nickname."""

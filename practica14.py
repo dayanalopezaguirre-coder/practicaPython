@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import simpledialog
 from tkinter import scrolledtext, messagebox
 from practica13 import ChatClient
 
@@ -31,9 +32,20 @@ class ChatGUI:
     
     def connect_to_chat(self):
         """Solicita nickname y conecta."""
-        nickname = tk.simpledialog.askstring("Nickname", "Ingresa tu nickname:")
+        nickname = simpledialog.askstring("Nickname", "Ingresa tu nickname:")
         if nickname and self.client.connect(nickname):
-            self.display_message("🎉 ¡Bienvenido al chat amigable! Escribe un mensaje y presiona Enviar o Enter.")
+            self.display_message("🎉 ¡Bienvenido al chat Day! Cargando historial...")
+            # Obtener y mostrar historial de mensajes desde la API
+            history = self.client.get_message_history()
+            if history:
+                for msg in history:
+                    fecha = msg.get('fecha_hora', 'Sin fecha')
+                    usuario = msg.get('nombre_usuario', 'Desconocido')
+                    mensaje = msg.get('mensaje', '')
+                    self.display_message(f"[{fecha}] {usuario}: {mensaje}")
+            else:
+                self.display_message("📜 No hay historial disponible o error al cargar.")
+            self.display_message("Escribe un mensaje y presiona Enviar o Enter.")
         else:
             messagebox.showerror("Error", "No se pudo conectar al servidor.")
             self.root.quit()
@@ -52,10 +64,10 @@ class ChatGUI:
         self.message_area.config(state='disabled')
         self.message_area.see(tk.END)  # Scroll automático
 
-def main():
+def hola():
     root = tk.Tk()
     app = ChatGUI(root)
     root.mainloop()
 
 if __name__ == "__main__":
-    main()
+    hola()
